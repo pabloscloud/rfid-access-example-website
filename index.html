@@ -1,251 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet" />
 
-        <style>
-            body {
-                background-color: #f7f7f7;
-                font-family: "Single Day", cursive;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: "Single Day", cursive;
+          }
+          
+          .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            width: fit-content;
+            height: fit-content;
+            margin: 25vh auto;
+            border-radius: 30px;
+            box-shadow: 10px 10px 16px -2px #999, -10px -10px 16px -2px #fff;
+          }
+          
+          .same-line {
+            display: flex;
+    	width: 100%;
+          }
+          
+          .child {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            width: 50px;
+            height: 50px;
+            margin: 10px;
+            border-radius: 30px;
+            box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
+            cursor: pointer;
+          }
+          
+          .input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 50px;
+            margin: 10px;
+          }
+          
+          .input input {
+            border: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-align: center;
+            width: 100%;
+    	background: none;
+          }
+          
+          .input.scrolling-container {
+            width: 100%;
+            background-color: #f5f5f5;
+    	transition: background 1s;
+            border-radius: 30px;
+            border: 0px;
+            box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
+          }
+          
+          .child.clicked, .disabled .child {
+            box-shadow: inset -10px -10px 10px #ffffff70, inset 10px 10px 10px #aeaec040;
+            cursor: not-allowed;
+          }
+          
+          @keyframes scroll {
+            0% {
+              transform: translateX(100%);
             }
-
-            .container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: #f0f0f0;
-                width: fit-content;
-                height: fit-content;
-                margin: 25vh auto;
-                border-radius: 30px;
-                box-shadow: 10px 10px 16px -2px #999, -10px -10px 16px -2px #fff;
+            100% {
+              transform: translateX(-100%);
             }
+          }
+          
+          .scrolling-text {
+            width: 100%;
+            overflow-x: auto;
+          }
+          
+          .scrolling-text.enabled input {
+            font-size: 110%;
+            font-family: "Single Day";
+            animation: scroll 7.5s linear infinite;
+            white-space: nowrap;
+            overflow: auto;
+            width: 150%;
+          }
+    
+          .scrolling-container.success {
+          	background-color: #3cc21b;
+          }
+    	
+          .scrolling-container.warning {
+            background-color: #ffa245;
+          }
+    
+          .scrolling-container.error {
+            background-color: #ff4545;
+          }
+    
+          .scrolling-container.success input, .scrolling-container.warning input, .scrolling-container.error input {
+          	color: #f5f5f5;
+          }
+    
+          #draggableFob {
+            position: absolute;
+            cursor: grab;
+    	width: 200px;
+          }
+    
+          .nfc-icon {
+          	color: #545454;
+    	padding: 10px;
+          }
+    </style>
 
-            .same-line {
-                display: flex;
-            }
+</head>
 
-            .child {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: #f5f5f5;
-                width: 50px;
-                height: 50px;
-                margin: 10px;
-                border-radius: 30px;
-                box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
-                cursor: pointer;
-            }
+<body>
+    <img id="draggableFob" src="https://media.ncd.io/sites/2/20170721142845/RFID-Fob.png" alt="Draggable Fob" ondragstart="return false;">
 
-            .input {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-                height: 50px;
-                margin: 10px;
-            }
-
-            .input input {
-                border: none;
-                white-space: nowrap;
-                overflow: hidden;
-                text-align: center;
-                width: 100%;
-            }
-
-            .input.scrolling-container {
-                width: 100%;
-                background-color: #f5f5f5;
-                border-radius: 30px;
-                border: 0px;
-                box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
-            }
-
-            .child.clicked,
-            .disabled .child {
-                box-shadow: inset -10px -10px 10px #ffffff70, inset 10px 10px 10px #aeaec040;
-                cursor: not-allowed;
-            }
-
-            @keyframes scroll {
-                0% {
-                    transform: translateX(100%);
-                }
-                100% {
-                    transform: translateX(-100%);
-                }
-            }
-
-            .scrolling-text {
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            .scrolling-text.enabled input {
-                font-size: 110%;
-                font-family: "Single Day";
-                animation: scroll 7.5s linear infinite;
-                white-space: nowrap;
-                overflow: auto;
-                width: 150%;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="container" id="pinpad">
-            <div>
-                <div class="same-line">
-                    <div class="input scrolling-container">
-                        <div class="scrolling-text enabled" id="scrolling-text">
-                            <input id="output" type="text" disabled="disabled" />
-                        </div>
-                    </div>
-                </div>
-                <div class="same-line">
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>1</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>2</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>3</p>
-                    </div>
-                </div>
-                <div class="same-line">
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>4</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>5</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>6</p>
-                    </div>
-                </div>
-                <div class="same-line">
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>7</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>8</p>
-                    </div>
-                    <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
-                        <p>9</p>
+    <div class="container disabled" id="pinpad">
+        <div>
+            <div class="same-line">
+                <div class="input scrolling-container" id="status">
+                    <div class="scrolling-text enabled" id="scrolling-text">
+                        <input id="output" type="text" disabled="disabled">
                     </div>
                 </div>
             </div>
+            <div class="same-line">
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>1</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>2</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>3</p>
+                </div>
+            </div>
+            <div class="same-line">
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>4</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>5</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>6</p>
+                </div>
+            </div>
+            <div class="same-line">
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>7</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>8</p>
+                </div>
+                <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
+                    <p>9</p>
+                </div>
+            </div>
+            <div class="same-line" style="display: ruby-text;">
+                <span class="material-icons nfc-icon" id="nfc-icon">nfc</span>
+            </div>
         </div>
-    </body>
+    </div>
+</body>
 
-    <script>
-        const apiUrl = "http://192.168.102.121:8000/api/v1";
-        const bearerToken = "";  // Enter your token here
+<script>
+    const apiUrl = 'http://192.168.102.121:8000/api/v1';
+    const bearerToken = ''; // Enter your token here
+    
+    var input = "";
+    
+    function initialize() {
+       document.getElementById("output").value = "Hold your chip against the reader.";
+document.getElementById("scrolling-text").classList.add("enabled");
+      document.getElementById("status").classList.remove("success", "warning", "error");    
+}
+    initialize();
+    
+    function enableUserInput() {
+      document.getElementById("pinpad").classList.remove("disabled");
+      document.getElementById("output").value = "Please enter your pin.";
+    }
+    
+	function showStatus(status) {
+		if(status == "connectionFailed") {
+                        document.getElementById("output").value = "Failed to check for status.";
+			document.getElementById("status").classList.add("warning");
+		} else if(status == "userAdded") {
+                        document.getElementById("output").value = "Access granted.";
+			document.getElementById("status").classList.add("success");
+		} else if(status == "tooManyTries") {
+			document.getElementById("output").value = "Too many tries.";
+			document.getElementById("status").classList.add("error");
+		} else if(status == "accessDenied") {
+                        document.getElementById("output").value = "Access denied.";
+			document.getElementById("status").classList.add("error");
+                } else if(status == "userRemoved") {
+                        document.getElementById("output").value = "Goodbye!";
+                        document.getElementById("status").classList.add("success");
+                }
 
-        var input = "";
+		document.getElementById("scrolling-text").classList.add("enabled");
+		setTimeout(initialize, 7500);
+	}
 
-        function initialize() {
-            document.getElementById("output").value = "Hold your chip against the reader.";
-        }
-        initialize();
+    function toggleStyle(element) {
+      element.classList.toggle('clicked');
 
-        function enableUserInput() {
-            document.getElementById("pinpad").classList.remove("disabled");
-            document.getElementById("output").value = "Please enter your pin.";
-        }
-        enableUserInput();
+	if(document.getElementById("pinpad").classList.contains("disabled")){
+	     return;
+	}      
 
-        function showStatus(status) {
-            if (status == "connectionFailed") {
-                document.getElementById("output").value = "Failed to check for status.";
-            } else if (status == "userAdded") {
-                document.getElementById("output").value = "Access granted.";
-            } else if (status == "tooManyTries") {
-                document.getElementById("output").value = "Too many tries.";
-            } else if (status == "accessDenied") {
-                document.getElementById("output").value = "Access denied.";
+      if(document.getElementById("output").value.length > 6) {
+        document.getElementById("scrolling-text").classList.remove("enabled");
+        document.getElementById("output").value = "*";
+        
+        input = element.getElementsByTagName("p")[0].innerHTML;
+      } else if(document.getElementById("output").value.length == 5) {
+        document.getElementById("pinpad").classList.add("disabled");
+        
+        document.getElementById("output").value += "*";
+        
+        input += element.getElementsByTagName("p")[0].innerHTML;
+        
+        const klartextUID = '84 90 6C A7';
+        const urlCodiertUID = encodeURIComponent(klartextUID);
+        const klartextPIN = input;
+        const urlCodiertPIN = encodeURIComponent(klartextPIN);
+        const urlEndpoint = "/log";
+        
+        const url = apiUrl + urlEndpoint + "?uid=" + urlCodiertUID + "&pin=" + urlCodiertPIN;
+        
+        const fetchOptions = {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            'Content-Type': 'application/json'
+          }
+        };
+        
+        fetch(url, fetchOptions)
+          .then(response => {
+            if (!response.ok) {
+              console.log(`Fehler: ${response.status} - ${response.statusText}`);
             }
 
-            document.getElementById("scrolling-text").classList.add("enabled");
-            setTimeout(enableUserInput, 7500);
-        }
-
-        function toggleStyle(element) {
-            element.classList.toggle("clicked");
-
-            if (document.getElementById("pinpad").classList.contains("disabled")) {
-                return;
-            }
-
-            if (document.getElementById("output").value.length > 6) {
-                document.getElementById("scrolling-text").classList.remove("enabled");
-                document.getElementById("output").value = "*";
-
-                input = element.getElementsByTagName("p")[0].innerHTML;
-            } else if (document.getElementById("output").value.length == 5) {
-                document.getElementById("pinpad").classList.add("disabled");
-
-                document.getElementById("output").value += "*";
-
-                input += element.getElementsByTagName("p")[0].innerHTML;
-
-                const klartextUID = "84 90 6C A7";
-                const urlCodiertUID = encodeURIComponent(klartextUID);
-                const klartextPIN = input;
-                const urlCodiertPIN = encodeURIComponent(klartextPIN);
-                const urlEndpoint = "/log";
-
-                const url = apiUrl + urlEndpoint + "?uid=" + urlCodiertUID + "&pin=" + urlCodiertPIN;
-
-                const fetchOptions = {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${bearerToken}`,
-                        "Content-Type": "application/json",
-                    },
-                };
-
-                fetch(url, fetchOptions)
-                    .then((response) => {
-                        if (!response.ok) {
-                            console.log(`Fehler: ${response.status} - ${response.statusText}`);
-                        }
-
-                        return Promise.all([response.json(), response.status]);
-                    })
-                    .then(([data, status]) => {
-                        if (status == 401) {
-                            showStatus("connectionFailed");
-                        } else if (status == 201) {
-                            if (data.message && data.message.includes("Log created successfully! User added to room")) {
-                                showStatus("userAdded");
-                            } else {
-                                showStatus("accessDenied");
-                            }
-                        } else if (status == 429) {
-                            showStatus("tooManyTries");
-                        }
-                        console.log("API-Antwort:", data);
-                    })
-                    .catch((error) => {
+            return Promise.all([response.json(), response.status]);
+          })
+          .then(([data, status]) => {
+		 if(status == 401){
                         showStatus("connectionFailed");
-                    });
-            } else {
-                document.getElementById("output").value += "*";
+                } else if(status == 201) {
+                        if(data.message && data.message.includes("Log created successfully! User added to room")){
+                                showStatus("userAdded");
+                        } else {
+				showStatus("accessDenied");
+                        }
+                } else if(status == 429){
+                        showStatus("tooManyTries");
+                }
+            console.log('API-Antwort:', data);
+          })
+          .catch(error => {
+		showStatus("connectionFailed");
+          });
+    
+      } else {
+        document.getElementById("output").value += "*"
+        
+        input += element.getElementsByTagName("p")[0].innerHTML
+      }
+    }
+    
+    function unpressStyle(element) {
+      element.classList.toggle('clicked');
+    }
+	// JavaScript code for dragging the image
+        const draggableImage = document.getElementById('draggableFob');
+	let isPressed = false;
+        let offsetX, offsetY;
 
-                input += element.getElementsByTagName("p")[0].innerHTML;
+        // Mouse press event: Save the initial position for dragging
+        draggableImage.addEventListener('mousedown', (e) => {
+            isPressed = true;
+            offsetX = e.clientX - draggableImage.offsetLeft;
+            offsetY = e.clientY - draggableImage.offsetTop;
+            draggableImage.style.cursor = 'grabbing';
+        });
+
+        // Mouse release event: Reset the dragging status
+        window.addEventListener('mouseup', () => {
+            isPressed = false;
+            draggableImage.style.cursor = 'grab';
+        	checkOverlay();
+	});
+
+        // Mouse move event: Drag the image if the mouse is pressed
+        window.addEventListener('mousemove', (e) => {
+            if (isPressed) {
+                const newX = e.clientX - offsetX;
+                const newY = e.clientY - offsetY;
+
+                // Limit the dragging within the window
+                if (newX >= 0 && newY >= 0 && newX + draggableImage.width <= window.innerWidth && newY + draggableImage.height <= window.innerHeight) {
+                    draggableImage.style.left = newX + 'px';
+                    draggableImage.style.top = newY + 'px';
+                }
             }
-        }
+        });
 
-        function unpressStyle(element) {
-            element.classList.toggle("clicked");
-        }
-    </script>
+function checkOverlay() {
+	// Get the bounding box of the first element 
+	const element1 = document.getElementById('nfc-icon'); 
+	const rect1 = element1.getBoundingClientRect(); 
+ 
+	// Get the bounding box of the second element 
+	const element2 = document.getElementById('draggableFob'); 
+	const rect2 = element2.getBoundingClientRect(); 
+ 
+	// Check if the two elements overlap 
+	const overlap = !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom); 
+ 	
+	// Log the result 
+	console.log(overlap);
+
+	if(overlap) { 
+
+const draggableImage = document.getElementById('draggableFob');
+    draggableImage.style.left = 'auto';
+    draggableImage.style.top = 'auto';
+
+	const klartextUID = '84 90 6C A7';
+        const urlCodiertUID = encodeURIComponent(klartextUID);
+        const urlEndpoint = "/log";
+
+        const url = apiUrl + urlEndpoint + "?uid=" + urlCodiertUID;
+
+        const fetchOptions = {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            'Content-Type': 'application/json'
+          }
+        };
+
+        fetch(url, fetchOptions)
+          .then(response => {
+          	return Promise.all([response.json(), response.status]);
+          })
+          .then(([data, status]) => {
+                 if(status == 401){
+                        showStatus("connectionFailed");
+                } else if(status == 200) {
+                        if(data.message && data.message.includes("User removed from room")){
+                                showStatus("userRemoved");
+                        }
+                }
+          })
+          .catch(error => {
+                showStatus("connectionFailed");
+          });
+
+		enableUserInput();
+	}
+}
+</script>
+
 </html>
