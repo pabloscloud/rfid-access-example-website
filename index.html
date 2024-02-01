@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-  
+
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
-  
+
     <style>
       body {
         background-color: #f7f7f7;
         font-family: "Single Day", cursive;
       }
-      
+
       .container {
         display: flex;
         justify-content: center;
@@ -25,11 +25,11 @@
         border-radius: 30px;
         box-shadow: 10px 10px 16px -2px #999, -10px -10px 16px -2px #fff;
       }
-      
+
       .same-line {
         display: flex;
       }
-      
+
       .child {
         display: flex;
         justify-content: center;
@@ -42,7 +42,7 @@
         box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
         cursor: pointer;
       }
-      
+
       .input {
         display: flex;
         justify-content: center;
@@ -51,7 +51,7 @@
         height: 50px;
         margin: 10px;
       }
-      
+
       .input input {
         border: none;
         white-space: nowrap;
@@ -59,7 +59,7 @@
         text-align: center;
         width: 100%;
       }
-      
+
       .input.scrolling-container {
         width: 100%;
         background-color: #f5f5f5;
@@ -67,26 +67,27 @@
         border: 0px;
         box-shadow: 10px 10px 16px -2px #ccc, -10px -10px 16px -2px #fff;
       }
-      
+
       .child.clicked, .disabled .child {
         box-shadow: inset -10px -10px 10px #ffffff70, inset 10px 10px 10px #aeaec040;
         cursor: not-allowed;
       }
-      
+
       @keyframes scroll {
         0% {
           transform: translateX(100%);
         }
         100% {
           transform: translateX(-100%);
+
         }
       }
-      
+
       .scrolling-text {
         width: 100%;
         overflow-x: auto;
       }
-      
+
       .scrolling-text.enabled input {
         font-size: 110%;
         font-family: "Single Day";
@@ -96,7 +97,7 @@
         width: 150%;
       }
     </style>
-    
+
   </head>
 
   <body>
@@ -119,6 +120,7 @@
           <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
             <p>3</p>
           </div>
+
         </div>
         <div class="same-line">
           <div class="child" onmousedown="toggleStyle(this)" onmouseup="unpressStyle(this)">
@@ -145,79 +147,109 @@
       </div>
     </div>
   </body>
-  
+
   <script>
     const apiUrl = 'http://192.168.102.121:8000/api/v1';
-    const bearerToken = 'deinBearerTokenHier';
-    
+    const bearerToken = ''; // Enter your token here
+
     var input = "";
-    
+
     function initialize() {
        document.getElementById("output").value = "Hold your chip against the reader.";
     }
     initialize();
-    
+
     function enableUserInput() {
       document.getElementById("pinpad").classList.remove("disabled")
-      document.getElementById("output").value = "Please enter you pin."
+      document.getElementById("output").value = "Please enter your pin."
     }
     enableUserInput();
-    
+
+        function showStatus(status) {
+                if(status == "connectionfailed") {
+                        document.getElementById("scrolling-text").classList.add("enabled");
+                        document.getElementById("output").value = "Failed to check for status.";
+                        setTimeout(enableUserInput, 7500);
+                }
+        }
+
     function toggleStyle(element) {
       element.classList.toggle('clicked');
-      
+
+        if(document.getElementById("pinpad").classList.contains("disabled")){
+             return;
+        }
+
       if(document.getElementById("output").value.length > 6) {
         document.getElementById("scrolling-text").classList.remove("enabled");
         document.getElementById("output").value = "*";
-        
+
         input = element.getElementsByTagName("p")[0].innerHTML;
       } else if(document.getElementById("output").value.length == 5) {
         document.getElementById("pinpad").classList.add("disabled");
-        
+
         document.getElementById("output").value += "*";
-        
+
         input += element.getElementsByTagName("p")[0].innerHTML;
-        
+
         const klartextUID = '84 90 6C A7';
         const urlCodiertUID = encodeURIComponent(klartextUID);
         const klartextPIN = input;
         const urlCodiertPIN = encodeURIComponent(klartextPIN);
         const urlEndpoint = "/log";
-        
+
         const url = apiUrl + urlEndpoint + "?uid=" + urlCodiertUID + "&pin=" + urlCodiertPIN;
-        
+
         const fetchOptions = {
-          method: 'GET',
+          method: 'PUT',
           headers: {
             Authorization: `Bearer ${bearerToken}`,
             'Content-Type': 'application/json'
           }
         };
-        
-        fetch(apiUrl, fetchOptions)
+
+        fetch(url, fetchOptions)
           .then(response => {
             if (!response.ok) {
-              throw new Error(`Fehler: ${response.status} - ${response.statusText}`);
+              console.log(`Fehler: ${response.status} - ${response.statusText}`);
             }
-            return response.json();
+
+            return Promise.all([response.json(), response.status]);
           })
-          .then(data => {
+          .then(([data, status]) => {
+                 if(status == 401){
+                        showStatus("connectionfailed");
+                } else if(status == 201) {
+                        if(data.message && data.message.includes("Log created successfully! User added to room")){
+                                document.getElementById("scrolling-text").classList.add("enabled");
+                                document.getElementById("output").value = "Access granted.";
+                                setTimeout(enableUserInput, 7500);
+                        } else {
+                                document.getElementById("scrolling-text").classList.add("enabled");
+                                document.getElementById("output").value = "Access denied.";
+                                setTimeout(enableUserInput, 7500);
+                        }
+                } else if(status == 429){
+                        document.getElementById("scrolling-text").classList.add("enabled");
+                        document.getElementById("output").value = " Too many failed attempts.";
+                        setTimeout(enableUserInput, 7500);
+                }
             console.log('API-Antwort:', data);
           })
           .catch(error => {
-            console.log('Fehler bei der API-Anfrage:', error.message);
+                showStatus("connectionfailed");
           });
-    
+
       } else {
         document.getElementById("output").value += "*"
-        
+
         input += element.getElementsByTagName("p")[0].innerHTML
       }
     }
-    
+
     function unpressStyle(element) {
       element.classList.toggle('clicked');
     }
   </script>
-  
+
 </html>
